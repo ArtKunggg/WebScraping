@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+
+    <!-- Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/css/select2.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: url("https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+            background-size: contain; /* ปรับขนาดให้เต็มหน้าจอโดยไม่เสียอัตราส่วน */
+            background-position: center; /* วางตำแหน่งรูปภาพให้อยู่กึ่งกลาง */
+            /* background-repeat: no-repeat; ไม่ให้รูปภาพซ้ำ */
+            min-height: 100vh;
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 2.5rem;
+            color: #ffffff;
+        }
+
+        .form-container {
+            margin: 20px 0;
+        }
+
+        .city {
+            width: 90%;
+            max-width: 600px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .city:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .city h2 {
+            font-size: 1.5rem;
+            color: #D6916E;
+            margin-bottom: 10px;
+        }
+
+        .city p {
+            margin: 5px 0;
+            font-size: 1rem;
+        }
+
+        .city strong {
+            color: #444;
+        }
+
+        .error {
+            color: #D14;
+            font-size: 1.1rem;
+        }
+
+        .no-data {
+            font-size: 1.5rem;
+            color: #ffffff;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 10px 0;
+            width: 100%;
+            background: #444444;
+            color: #fff;
+            text-align: center;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            color: rgb(255, 255, 255); /* เปลี่ยนสีข้อความเป็นสีฟ้า */
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Weather Dashboard</h1>
+    <div class="form-container">
+        <!-- Form เลือกจังหวัด -->
+        <form method="POST">
+            <label for="city">เลือกจังหวัดที่ต้องการ : </label>
+            <select name="city" id="city" class="select2" style="width: 300px;">
+                <option value="">-- Select --</option>
+                {% for province in provinces %}
+                <option value="{{ province }}" {% if selected_city==province %}selected{% endif %}>
+                    {{ province }}
+                </option>
+                {% endfor %}
+            </select>
+            <button type="submit">ดูสภาพอากาศ</button>
+        </form>
+    </div>
+
+    <!-- แสดงผลข้อมูล -->
+    {% if weather_data %}
+    {% if weather_data.error %}
+    <div class="city error">{{ weather_data.error }}</div>
+    {% else %}
+    <div class="city">
+        <h2>{{ weather_data.city }}</h2>
+        <p><strong>สภาพอากาศ:</strong> {{ weather_data.weather }}</p>
+        <p><strong>อุณหภูมิ:</strong> {{ weather_data.temperature | round(2) }} °C</p>
+        <p><strong>ฝน (1 ชั่วโมงที่ผ่านมา):</strong> {{ weather_data.rain }} mm</p>
+        <p><strong>เมฆ:</strong> {{ weather_data.cloud }} %</p>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="no-data">กรุณาเลือกจังหวัดเพื่อดูข้อมูลสภาพอากาศ</div>
+    {% endif %}
+
+    <!-- รูปภาพ -->
+    <!-- <div class="image-container">
+        <img src="https://media.istockphoto.com/id/1183232509/th/%E0%B9%80%E0%B8%A7%E0%B8%84%E0%B9%80%E0%B8%95%E0%B8%AD%E0%B8%A3%E0%B9%8C/%E0%B8%9E%E0%B8%B7%E0%B9%89%E0%B8%99%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B9%8C%E0%B8%95%E0%B8%B9%E0%B8%99%E0%B8%97%E0%B9%89%E0%B8%AD%E0%B8%87%E0%B8%9F%E0%B9%89%E0%B8%B2%E0%B9%80%E0%B8%A1%E0%B8%86-%E0%B8%97%E0%B9%89%E0%B8%AD%E0%B8%87%E0%B8%9F%E0%B9%89%E0%B8%B2%E0%B8%AA%E0%B8%B5%E0%B8%9F%E0%B9%89%E0%B8%B2%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A1%E0%B8%B5%E0%B9%80%E0%B8%A1%E0%B8%86%E0%B8%AA%E0%B8%B5%E0%B8%82%E0%B8%B2%E0%B8%A7%E0%B9%82%E0%B8%9B%E0%B8%AA%E0%B9%80%E0%B8%95%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B9%81%E0%B8%9A%E0%B8%99%E0%B8%AB%E0%B8%A3%E0%B8%B7%E0%B8%AD%E0%B9%83%E0%B8%9A%E0%B8%9B%E0%B8%A5%E0%B8%B4%E0%B8%A7%E0%B9%80%E0%B8%A7%E0%B8%81%E0%B9%80%E0%B8%95%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B8%A3%E0%B8%B9%E0%B8%9B%E0%B9%81%E0%B8%9A%E0%B8%9A.jpg?s=612x612&w=0&k=20&c=g9kmQelOjMn56hol3yOQynVHNvSiN5YL4iF02DeMcqQ="
+            width="auto" height="auto" alt="Weather Dashboard Illustration">
+    </div> -->
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Weather Dashboard. Created by MASTERART.</p>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Select2 JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-beta.1/js/select2.min.js"></script>
+
+    <!-- เปิดใช้งาน Select2 -->
+    <script>
+        $(document).ready(function () {
+            $('.select2').select2({
+                placeholder: "ค้นหาเมือง",
+                allowClear: true
+            });
+        });
+    </script>
+</body>
+
+</html>
