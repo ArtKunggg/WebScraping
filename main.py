@@ -1,10 +1,8 @@
 from flask import Flask, render_template, request
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 import requests
 
 app = Flask(__name__)
-
-translator = Translator()
 
 API_KEY = "3337e2b41509cb82f67155d38496af87"
 BASE_URL = "http://api.openweathermap.org/data/2.5/weather"
@@ -27,7 +25,6 @@ PROVINCES = [
     "สงขลา", "ปัตตานี"
 ]
 
-
 @app.route("/", methods=["GET", "POST"])
 def weather_dashboard():
     weather_data = None
@@ -43,8 +40,8 @@ def weather_dashboard():
                 data = response.json()
 
                 # แปลชื่อเมืองและคำอธิบายสภาพอากาศ
-                city_th = translator.translate(data["name"], src="en", dest="th").text
-                weather_description_th = translator.translate(data["weather"][0]["description"], src="en", dest="th").text
+                city_th = GoogleTranslator(source="en", target="th").translate(data["name"])
+                weather_description_th = GoogleTranslator(source="en", target="th").translate(data["weather"][0]["description"])
                 
                 # เก็บข้อมูลจาก API
                 weather_data = {
